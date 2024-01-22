@@ -1,3 +1,7 @@
+pushing
+git add .
+git commit -m "test 2"
+git push
 
 
 merging
