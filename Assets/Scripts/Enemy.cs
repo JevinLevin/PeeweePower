@@ -11,8 +11,27 @@ public class Enemy : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    public void Kill(Transform origin, float hitPower, float hitHeight)
+    public void Kill(Transform origin, float hitPower, float hitHeight, int comboStage)
     {
-        rb.AddExplosionForce(hitPower,(transform.position-origin.right),2, hitHeight, ForceMode.Impulse);
+
+        Vector3 hitDirection = Vector3.zero;
+        switch (comboStage)
+        {
+            case 1:
+                hitDirection = origin.right;
+                break;
+            case 2:
+                hitDirection = -origin.right;
+                break;
+            case 3:
+                hitDirection = -origin.up + transform.forward/2;
+                hitPower *= 1.25f;
+                hitHeight *= 2f;
+                break;
+        }
+                
+
+
+        rb.AddExplosionForce(hitPower,(transform.position-hitDirection),2, hitHeight, ForceMode.Impulse);
     }
 }

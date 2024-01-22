@@ -10,6 +10,11 @@ public class PlayerAttacker : MonoBehaviour
     [Header("Config")]
     [SerializeField] private float hitPower;
     [SerializeField] private float hitHeight;
+
+    [Header("Combo")]
+    private int comboStage;
+    private float comboTime;
+    [SerializeField] private float comboMaxWait;
    
 
     private void OnTriggerEnter(Collider other)
@@ -32,8 +37,29 @@ public class PlayerAttacker : MonoBehaviour
 
     private void Update()
     {
+        comboTime -= Time.deltaTime;
+        if (comboTime <= 0)
+            comboStage = 0;
+
         if (Input.GetMouseButtonDown(0))
-            foreach(Enemy enemy in enemiesInRange)
-                enemy.Kill(transform, hitPower, hitHeight);
+            Attack();
+    }
+
+    private void Attack()
+    {
+        if (enemiesInRange.Count <= 0)
+            return;
+
+        PlayerCamera.ShakeCamera();
+
+        comboTime = comboMaxWait;
+
+        comboStage++;
+
+        foreach (Enemy enemy in enemiesInRange)
+            enemy.Kill(transform, hitPower, hitHeight, comboStage);
+
+        if (comboStage >= 3)
+            comboStage = 0;
     }
 }
