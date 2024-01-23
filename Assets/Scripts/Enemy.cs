@@ -5,33 +5,18 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     private Rigidbody rb;
+    private CapsuleCollider cc;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        cc = GetComponent<CapsuleCollider>();
     }
 
-    public void Kill(Transform origin, float hitPower, float hitHeight, int comboStage)
+    public void Kill(Vector3 hitDirection, float hitPower, float hitHeight, int comboStage)
     {
+        rb.AddExplosionForce(hitPower,(transform.position-hitDirection),20, hitHeight, ForceMode.Impulse);
+        cc.isTrigger = true;
 
-        Vector3 hitDirection = Vector3.zero;
-        switch (comboStage)
-        {
-            case 1:
-                hitDirection = origin.right;
-                break;
-            case 2:
-                hitDirection = -origin.right;
-                break;
-            case 3:
-                hitDirection = -origin.up + transform.forward/2;
-                hitPower *= 1.25f;
-                hitHeight *= 2f;
-                break;
-        }
-                
-
-
-        rb.AddExplosionForce(hitPower,(transform.position-hitDirection),2, hitHeight, ForceMode.Impulse);
     }
 }

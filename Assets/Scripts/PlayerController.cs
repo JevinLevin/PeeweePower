@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerCamera playerCamera;
+    public Collider cc { get; private set; }
 
     [Header("Config")]
     [SerializeField] private float playerMouseSensitivity;
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        cc = GetComponent<Collider>();
         Cursor.lockState = CursorLockMode.Locked;
 
         attacker = GetComponentInChildren<PlayerAttacker>();
@@ -47,6 +49,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
+        GameManager.playerController = this;
     }
 
     private void Update()

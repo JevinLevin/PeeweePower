@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using static UnityEngine.UI.Image;
 
 public class PlayerAttacker : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class PlayerAttacker : MonoBehaviour
     [SerializeField] private float chargeDuration;
     [SerializeField] private float chargePower;
     [SerializeField] private AnimationCurve chargeCurve;
+    [SerializeField] private float chargeHitPower;
+    [SerializeField] private float chargeHitHeight;
     private float chargeUpTime;
     private float chargeTime;
     private bool charging;
@@ -60,10 +63,10 @@ public class PlayerAttacker : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && !charged)
                 Attack();
         if(Input.GetMouseButtonUp(0) && charged)
-            StartCoroutine(ChargeAttack());
+            StartCoroutine(PlayChargeAttack());
 
         if (charging)
-            Attack();
+            ChargeAttack();
 
 
         if (Input.GetMouseButton(0) && !charging)
@@ -78,7 +81,6 @@ public class PlayerAttacker : MonoBehaviour
             charged = false;
             chargeup = false;
             OnChangeSpeed?.Invoke(1);
-            print("AHHHH");
         }
 
         if (chargeUpTime >= chargeUpDuration)
@@ -96,14 +98,46 @@ public class PlayerAttacker : MonoBehaviour
 
         comboStage++;
 
+
+        // Calculate hit power
+        float currentHitPower = hitPower;
+        float currentHitHeight = hitHeight;
+        Vector3 hitDirection = Vector3.zero;
+        switch (comboStage)
+        {
+            case 1:
+                hitDirection = transform.right;
+                break;
+            case 2:
+                hitDirection = -transform.right;
+                break;
+            case 3:
+                hitDirection = -transform.up + transform.forward / 2;
+                currentHitPower *= 1.25f;
+                currentHitHeight *= 2f;
+                break;
+        }
+
         foreach (Enemy enemy in enemiesInRange)
-            enemy.Kill(transform, hitPower, hitHeight, comboStage);
+            enemy.Kill(hitDirection, currentHitPower, currentHitHeight, comboStage);
 
         if (comboStage >= 3)
             comboStage = 0;
     }
 
-    private IEnumerator ChargeAttack()
+    private void ChargeAttack()
+    {
+        if (enemiesInRange.Count <= 0)
+            return;
+
+        PlayerCamera.ShakeCamera();
+
+        foreach (Enemy enemy in enemiesInRange)
+            enemy.Kill(transform.position, chargeHitPower, chargeHitHeight, comboStage);
+
+    }
+
+    private IEnumerator PlayChargeAttack()
     {
         charging = true;
         OnChangeSpeed?.Invoke(1);
@@ -115,7 +149,6 @@ public class PlayerAttacker : MonoBehaviour
 
         while ((t = chargeTime / chargeDuration) < 1)
         {
-            print("CHARGE ATTACK");
             chargeTime += Time.deltaTime;
 
             chargeVelocity = Vector3.Lerp(startingChargeVelocity, Vector3.zero, chargeCurve.Evaluate(t));

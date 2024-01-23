@@ -98,6 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1323a4fd5c3a7e44ab515a87bf4b10e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ignoreLayerWhenKilled: 7
 --- !u!136 &4618710758103326397
 CapsuleCollider:
   m_ObjectHideFlags: 0
