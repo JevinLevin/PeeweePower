@@ -97,15 +97,21 @@ public class Enemy : MonoBehaviour
 
     public void Kill(Vector3 hitDirection, float hitPower, float hitHeight, int comboStage)
     {
+        // Remove collision
         cc.isTrigger = true;
+        // Allow ragdoll rotation
         rb.constraints = RigidbodyConstraints.None;
 
+        // Apply velocity to enemy based on where theyre hit from
         rb.AddExplosionForce(hitPower, (transform.position - hitDirection), 20, hitHeight, ForceMode.Impulse);
 
         Alive = false;
 
+
+        // Add time to main timer
         GameManager.timeManager.AddTime(timeReward);
 
+        // Despawn
         StartCoroutine(DespawnAfterDelay(deathDespawnDelay));
 
 

@@ -30,8 +30,10 @@ public class TimeManager : MonoBehaviour
 
         float t = currentTime / maxTime;
 
+        // Alter progress bar
         timerBar.fillAmount = 1 - t;
 
+        // Format time into a readable string
         int seconds = (int)(maxTime - currentTime);
         int minutes = seconds / 60;
         seconds = seconds % 60;
