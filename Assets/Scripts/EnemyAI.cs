@@ -19,8 +19,9 @@ public class EnemyAI : MonoBehaviour
         agent.destination = enemy.PlayerTransform.position;
     }
 
-    public void ResetPosition()
+    public void ResetTransform()
     {
         transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
     }
 }

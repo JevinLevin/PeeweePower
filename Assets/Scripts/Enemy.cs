@@ -60,9 +60,16 @@ public class Enemy : MonoBehaviour
         float distance = Vector3.Distance(transform.position, PlayerTransform.position);
         if (Alive && !isPlayerStunned && distance < targetRange &&  distance >= 1)
         {
+            // Move position
             transform.position = ai.transform.position;
+            // Dont ask why this is necessary okay, for some reason it needs to be slightly clipped into the ground for ragdoll physics to work properly
             transform.position += Vector3.up/1.1f;
-            ai.ResetPosition();
+
+            // Rotate enemy
+            transform.rotation = ai.transform.rotation;
+
+
+            ai.ResetTransform();
         }
     }
 
@@ -74,7 +81,7 @@ public class Enemy : MonoBehaviour
             float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
             if (distanceToPlayer < punchRange)
             {
-                PunchPlayer();
+                //PunchPlayer();
             }
 
             yield return new WaitForSeconds(punchCooldown);
