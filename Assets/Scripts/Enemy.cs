@@ -1,21 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
     private Rigidbody rb;
     private CapsuleCollider cc;
+    private EnemyAI ai;
     public bool Alive { get;private set; }
 
     private PlayerController player;
-    private Transform playerTransform;
+    public Transform PlayerTransform { get; private set; }
     private bool isPlayerStunned = false;
 
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float punchRange = 2f;
     [SerializeField] private float punchCooldown = 3f; // Time between punches
     [SerializeField] private float deathDespawnDelay = 2f; // Time before the enemy is despawned after death
+    [SerializeField] private float targetRange = 25f; // Distance to the player before the enemy starts tracking them
 
     public enum EnemyTypes
     {
@@ -32,6 +35,7 @@ public class Enemy : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         cc = GetComponent<CapsuleCollider>();
+        ai = GetComponentInChildren<EnemyAI>();
 
         Alive = true;
     }
@@ -39,7 +43,7 @@ public class Enemy : MonoBehaviour
     private void Start()
     { // the player tag will have to be created 
         player = GameManager.playerController;
-        playerTransform = player.transform;
+        PlayerTransform = player.transform;
         StartCoroutine(PunchPlayerRoutine());
     }
 
@@ -53,10 +57,12 @@ public class Enemy : MonoBehaviour
 
     private void FollowPlayer()
     {
-        if (!isPlayerStunned)
+        float distance = Vector3.Distance(transform.position, PlayerTransform.position);
+        if (Alive && !isPlayerStunned && distance < targetRange &&  distance >= 1)
         {
-            Vector3 targetPosition = new Vector3(playerTransform.position.x, transform.position.y, playerTransform.position.z);
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            transform.position = ai.transform.position;
+            transform.position += Vector3.up/1.1f;
+            ai.ResetPosition();
         }
     }
 
@@ -65,7 +71,7 @@ public class Enemy : MonoBehaviour
         while (Alive)
         {
             // using a timer to determine when to punch, follow the player, try to land a swing 
-            float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+            float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
             if (distanceToPlayer < punchRange)
             {
                 PunchPlayer();
@@ -97,15 +103,17 @@ public class Enemy : MonoBehaviour
 
     public void Kill(Vector3 hitDirection, float hitPower, float hitHeight, int comboStage)
     {
+        Alive = false;
+
         // Remove collision
         cc.isTrigger = true;
         // Allow ragdoll rotation
         rb.constraints = RigidbodyConstraints.None;
+        ai.enabled = false;
 
         // Apply velocity to enemy based on where theyre hit from
         rb.AddExplosionForce(hitPower, (transform.position - hitDirection), 20, hitHeight, ForceMode.Impulse);
 
-        Alive = false;
 
 
         // Add time to main timer
