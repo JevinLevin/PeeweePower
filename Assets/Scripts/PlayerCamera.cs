@@ -19,6 +19,6 @@ public class PlayerCamera : MonoBehaviour
 
     public static void ShakeCamera()
     {
-        cameraOrigin.DOShakeRotation(0.25f, 200, 10, 90, true, ShakeRandomnessMode.Harmonic);
+        cameraTransform.DOShakeRotation(0.25f, 200, 10, 90, true, ShakeRandomnessMode.Harmonic);
     }
 }
