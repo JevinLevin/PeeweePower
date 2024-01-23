@@ -23,16 +23,24 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController controller;
     private Camera mainCamera;
+    private PlayerAttacker attacker;
 
     private float ySpeed;
     private bool onGround;
     private float jumpBuffer;
     private float currentSprintDuration;
 
+    private Vector3 externalVelocity;
+    private float playerSpeedPercentage = 1.0f;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
+
+        attacker = GetComponentInChildren<PlayerAttacker>();
+        attacker.OnAddVelocity += AddExternalVelocity;
+        attacker.OnChangeSpeed += AdjustPlayerSpeed;
 
     }
 
@@ -64,6 +72,9 @@ public class PlayerController : MonoBehaviour
 
         velocity.y = ySpeed;
 
+        velocity += externalVelocity;
+        velocity *= playerSpeedPercentage;
+
         controller.Move(velocity * Time.deltaTime);
 
         // Ground interaction
@@ -72,9 +83,13 @@ public class PlayerController : MonoBehaviour
         if (!onGround && controller.isGrounded)
             Land();
 
+        // Camera movement
         float cameraX = Input.GetAxis("Mouse X") * playerMouseSensitivity * Time.deltaTime;
-        transform.eulerAngles += new Vector3(0, cameraX, 0);
-        playerCamera.transform.eulerAngles += new Vector3(0, cameraX, 0);
+        transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y+ cameraX, transform.eulerAngles.z);
+        playerCamera.transform.rotation = Quaternion.Euler(playerCamera.transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+
+
+        externalVelocity = Vector3.zero;
 
     }
 
@@ -106,6 +121,16 @@ public class PlayerController : MonoBehaviour
 
         return inputDirection.normalized;
 
+    }
+
+    private void AddExternalVelocity(Vector3 velocity)
+    {
+        externalVelocity += velocity;
+    }
+
+    private void AdjustPlayerSpeed(float percentage)
+    {
+        playerSpeedPercentage = percentage;
     }
 
 
