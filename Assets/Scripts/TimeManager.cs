@@ -19,6 +19,11 @@ public class TimeManager : MonoBehaviour
         maxTime = startingTime;
     }
 
+    private void Start()
+    {
+        GameManager.timeManager = this;
+    }
+
     private void Update()
     {
         currentTime += Time.deltaTime;
@@ -34,5 +39,10 @@ public class TimeManager : MonoBehaviour
         timerText.text = "Time: " + text;
 
 
+    }
+
+    public void AddTime(float time)
+    {
+        currentTime = Mathf.Max(currentTime - time,0);
     }
 }

@@ -2,10 +2,10 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using Unity.VisualScripting.FullSerializer;
+using System.Linq;
 using UnityEngine;
 using static UnityEngine.UI.Image;
+using Random = UnityEngine.Random;
 
 public class PlayerAttacker : MonoBehaviour
 {
@@ -118,7 +118,7 @@ public class PlayerAttacker : MonoBehaviour
                 break;
         }
 
-        foreach (Enemy enemy in enemiesInRange)
+        foreach (Enemy enemy in enemiesInRange.Where(alive => alive.Alive))
             enemy.Kill(hitDirection, currentHitPower, currentHitHeight, comboStage);
 
         if (comboStage >= 3)
@@ -132,8 +132,13 @@ public class PlayerAttacker : MonoBehaviour
 
         PlayerCamera.ShakeCamera();
 
-        foreach (Enemy enemy in enemiesInRange)
-            enemy.Kill(transform.position, chargeHitPower, chargeHitHeight, comboStage);
+        foreach (Enemy enemy in enemiesInRange.Where(alive => alive.Alive))
+        {
+            Vector3 randomDirection = Random.Range(0, 2) == 0 ? -transform.right : transform.right;
+            float randomMultiplier = Random.Range(1.5f, 3.0f);
+            randomDirection /= randomMultiplier * Random.Range(0,2) == 1 ? -1 : 1;
+            enemy.Kill(transform.forward*2 + randomDirection, chargeHitPower, chargeHitHeight, comboStage);
+        }
 
     }
 

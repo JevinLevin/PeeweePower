@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     #region Singleton
     public static GameManager Instance { get; private set; }
 
+
     private void CreateSingleton()
     {
         if (Instance != null && Instance != this)
@@ -24,6 +25,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     public static PlayerController playerController;
+    public static TimeManager timeManager;
 
 
     private void Awake()
