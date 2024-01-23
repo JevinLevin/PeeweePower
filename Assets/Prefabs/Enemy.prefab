@@ -98,6 +98,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1323a4fd5c3a7e44ab515a87bf4b10e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 5
+  punchRange: 2
+  punchCooldown: 3
+  deathDespawnDelay: 2
   enemyType: 0
   timeReward: 1
 --- !u!136 &4618710758103326397
@@ -113,7 +117,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -148,5 +152,5 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0

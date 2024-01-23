@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerCamera playerCamera;
     public Collider cc { get; private set; }
+    public bool CanMove { get; set; }
 
     [Header("Config")]
     [SerializeField] private float playerMouseSensitivity;
@@ -20,6 +21,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerGravity;
     [SerializeField] private float playerJumpPower;
     [SerializeField] private float playerJumpBuffer = 0.2f;
+
+    [Header("Debug")]
+    [SerializeField] private bool canJump;
 
 
     private CharacterController controller;
@@ -44,30 +48,31 @@ public class PlayerController : MonoBehaviour
         attacker.OnAddVelocity += AddExternalVelocity;
         attacker.OnChangeSpeed += AdjustPlayerSpeed;
 
+        CanMove = true;
+
     }
 
+
+    private void OnEnable()
+    {
+        GameManager.playerController = this;
+    }
     private void Start()
     {
         mainCamera = Camera.main;
-        GameManager.playerController = this;
     }
 
     private void Update()
     {
-        Vector3 moveDirection = GetMovementDirection();
+        if(canJump)
+            CheckJump();
 
-        float sprintSpeed = GetSprintSpeed();
-        float speed = playerSpeed * sprintSpeed;
-        Vector3 velocity = moveDirection * speed;
+        // Initialize velocity
+        Vector3 velocity = Vector3.zero;
 
-        // Jump logic
-        // Buffer
-        jumpBuffer -= Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.Space))
-            jumpBuffer = playerJumpBuffer;
+        if(CanMove)
+            velocity = GetPlayerMovement();
 
-        if (onGround && jumpBuffer > 0.0f)
-            Jump();
 
         // Apply gravity
         if (!onGround)
@@ -109,6 +114,27 @@ public class PlayerController : MonoBehaviour
 
         return speed;
 
+    }
+
+    private void CheckJump()
+    {
+        // Jump logic
+        // Buffer
+        jumpBuffer -= Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.Space))
+            jumpBuffer = playerJumpBuffer;
+
+        if (onGround && jumpBuffer > 0.0f)
+            Jump();
+    }
+
+    private Vector3 GetPlayerMovement()
+    {
+        Vector3 moveDirection = GetMovementDirection();
+
+        float sprintSpeed = GetSprintSpeed();
+        float speed = playerSpeed * sprintSpeed;
+        return moveDirection * speed;
     }
 
     private Vector3 GetMovementDirection()

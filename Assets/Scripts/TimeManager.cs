@@ -19,7 +19,7 @@ public class TimeManager : MonoBehaviour
         maxTime = startingTime;
     }
 
-    private void Start()
+    private void OnEnable()
     {
         GameManager.timeManager = this;
     }
