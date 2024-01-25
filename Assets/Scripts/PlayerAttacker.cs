@@ -39,6 +39,8 @@ public class PlayerAttacker : MonoBehaviour
     [SerializeField] private float chargeHitHeight;
     [SerializeField] private float chargePlayerSpeedMin = 0.25f;
     [SerializeField] private float chargeCooldownMax = 0.25f;
+    [SerializeField] private float chargeStartThreshold = 0.25f;
+    private float chargeStartTimer;
     private float chargeCooldown;
     private float chargeUpTime;
     private float chargeTime;
@@ -137,8 +139,8 @@ public class PlayerAttacker : MonoBehaviour
     {
         player.PlayerState = PlayerController.PlayerStates.Dodging;
         player.Animator.SetBool(isDodging, true);
-        player.Animator.SetFloat(walkSpeed, 0.25f);
-        player.AdjustPlayerSpeed(0.25f);
+        player.Animator.SetFloat(walkSpeed, dodgePlayerSpeed);
+        player.AdjustPlayerSpeed(dodgePlayerSpeed);
         
         dodgeBuffer = 0.0f;
         
@@ -270,8 +272,13 @@ public class PlayerAttacker : MonoBehaviour
         if(Input.GetMouseButtonUp(0) && chargeReady)
             StartCoroutine(PlayChargeAttack());
 
-        // If the player is holdijng down the mouse and can attack
         if (Input.GetMouseButton(0) && !chargeCharging && CanAttack())
+            chargeStartTimer += Time.deltaTime;
+        else
+            chargeStartTimer = 0.0f;
+
+        // If the player is holding down the mouse and can attack
+        if (chargeStartTimer >= chargeStartThreshold)
         {
             if(!chargeActive)
                 StartCharge();

@@ -720,11 +720,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 392943320}
+  - component: {fileID: 392943315}
   - component: {fileID: 392943319}
   - component: {fileID: 392943318}
   - component: {fileID: 392943317}
   - component: {fileID: 392943316}
-  - component: {fileID: 392943315}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -2694,8 +2694,8 @@ MonoBehaviour:
   hitBufferMax: 0.25
   comboMaxWait: 2
   chargeUpDuration: 1
-  chargeDuration: 0.65
-  chargePower: 75
+  chargeDuration: 0.4
+  chargePower: 100
   chargeCurve:
     serializedVersion: 2
     m_Curve:
@@ -2724,8 +2724,11 @@ MonoBehaviour:
   chargeHitHeight: 2
   chargePlayerSpeedMin: 0.15
   chargeCooldownMax: 0.25
+  chargeStartThreshold: 0.25
   dodgeBufferMax: 0.25
-  dodgeDurationMax: 0.25
+  dodgeDurationMax: 0.5
+  dodgePlayerSpeed: 0.5
+  dodgeCooldownMax: 0.5
 --- !u!1001 &1673562688
 PrefabInstance:
   m_ObjectHideFlags: 0

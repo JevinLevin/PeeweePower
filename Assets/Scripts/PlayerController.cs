@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour
 
         if(moveDirection != Vector3.zero && PlayerState == PlayerStates.Idle)
             StartWalking(); 
-        if(moveDirection == Vector3.zero && PlayerState == PlayerStates.Walking)
+        if(moveDirection == Vector3.zero && (PlayerState == PlayerStates.Walking || PlayerState == PlayerStates.Idle))
             StopWalking();
 
         // Apply sprint multiplier

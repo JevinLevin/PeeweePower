@@ -8,13 +8,13 @@ public class Enemy : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider cc;
     private EnemyAI ai;
+    private Animator animator;
     public bool Alive { get;private set; }
 
     private PlayerController player;
     public Transform PlayerTransform { get; private set; }
     private bool isPlayerStunned = false;
 
-    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float punchRange = 2f;
     [SerializeField] private float punchCooldown = 3f; // Time between punches
     [SerializeField] private float deathDespawnDelay = 2f; // Time before the enemy is despawned after death
@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] private EnemyTypes enemyType;
     [SerializeField] private float timeReward;
-
+    private readonly int speed = Animator.StringToHash("speed");
 
 
     private void Awake()
@@ -36,6 +36,7 @@ public class Enemy : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         cc = GetComponent<CapsuleCollider>();
         ai = GetComponentInChildren<EnemyAI>();
+        animator = GetComponentInChildren<Animator>();
 
         Alive = true;
     }
@@ -60,6 +61,8 @@ public class Enemy : MonoBehaviour
         float distance = Vector3.Distance(transform.position, PlayerTransform.position);
         if (Alive && !isPlayerStunned && distance < targetRange &&  distance >= 1)
         {
+            Vector3 tempPos = transform.position;
+
             // Move position
             transform.position = ai.transform.position;
             // Dont ask why this is necessary okay, for some reason it needs to be slightly clipped into the ground for ragdoll physics to work properly
@@ -68,6 +71,9 @@ public class Enemy : MonoBehaviour
             // Rotate enemy
             transform.rotation = ai.transform.rotation;
 
+            // Change the enemys walk speed depending on how fast theyre going
+            float currentSpeed = Mathf.Lerp(0,1,Vector3.Distance(transform.position,tempPos)*250);
+            animator.SetFloat(speed, currentSpeed);
 
             ai.ResetTransform();
         }
