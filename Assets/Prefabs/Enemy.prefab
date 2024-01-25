@@ -96,7 +96,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackCooldownMax: 1
   attackLength: 1.25
-  attackImpactPercent: 0.5
+  attackImpactPercent: 0.6
 --- !u!1 &1853755906480015879
 GameObject:
   m_ObjectHideFlags: 0

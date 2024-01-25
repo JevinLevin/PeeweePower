@@ -40,7 +40,7 @@ public class EnemyAttacker : GenericAttacker<PlayerController>
         attacked = true;
         
         // Hit all alive enemies in the hit range
-        foreach (PlayerController player in targetsInRange.Where(stun => stun.PlayerState != PlayerController.PlayerStates.Stunned))
+        foreach (PlayerController player in targetsInRange.Where(stun => stun.PlayerState != PlayerController.PlayerStates.Stunned && stun.PlayerState !=  PlayerController.PlayerStates.Dodging))
             player.StartStun(transform.forward);
     }
 
