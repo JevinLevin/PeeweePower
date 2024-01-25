@@ -7,9 +7,8 @@ using UnityEngine;
 using static UnityEngine.UI.Image;
 using Random = UnityEngine.Random;
 
-public class PlayerAttacker : MonoBehaviour
+public class PlayerAttacker : GenericAttacker<Enemy>
 {
-    private List<Enemy> enemiesInRange = new();
     private PlayerController player;
 
     [Header("Attack")]
@@ -63,23 +62,7 @@ public class PlayerAttacker : MonoBehaviour
     private float dodgeBuffer;
     private float dodgeDuration;
     private float dodgeCooldown;
-
-
-    private void OnTriggerEnter(Collider other)
-    {
-        // If enemy enters attack range, add to list
-        if (other.TryGetComponent(out Enemy enemyScript))
-            enemiesInRange.Add(enemyScript);
-
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        // Remove enemy from list if they leave range
-        if (other.TryGetComponent(out Enemy enemyScript))
-            enemiesInRange.Remove(enemyScript);
-
-    }
+    
 
     private void Awake()
     {
@@ -143,8 +126,6 @@ public class PlayerAttacker : MonoBehaviour
         player.AdjustPlayerSpeed(dodgePlayerSpeed);
         
         dodgeBuffer = 0.0f;
-        
-        print("start");
     }
 
     private void EndDodge()
@@ -156,8 +137,6 @@ public class PlayerAttacker : MonoBehaviour
 
         dodgeDuration = 0.0f;
         dodgeCooldown = dodgeCooldownMax;
-        
-        print("end");
     }
 
     private void CheckAttack()
@@ -247,7 +226,7 @@ public class PlayerAttacker : MonoBehaviour
         }
 
         // Hit all alive enemies in the hit range
-        foreach (Enemy enemy in enemiesInRange.Where(alive => alive.Alive))
+        foreach (Enemy enemy in targetsInRange.Where(alive => alive.Alive))
             enemy.Kill(hitDirection, currentHitPower, currentHitHeight, currentComboStage);
 
         // Reset combo after max
@@ -306,7 +285,7 @@ public class PlayerAttacker : MonoBehaviour
         PlayerCamera.ShakeCamera();
 
         // Hit all alive enemies in the hit range
-        foreach (Enemy enemy in enemiesInRange.Where(alive => alive.Alive))
+        foreach (Enemy enemy in targetsInRange.Where(alive => alive.Alive))
         {
             // Randomise the hit direction (dont try to comprehend this clusterfuck of code)
             Vector3 randomDirection = Random.Range(0, 2) == 0 ? -transform.right : transform.right;
@@ -328,7 +307,6 @@ public class PlayerAttacker : MonoBehaviour
 
     private void CancelCharge()
     {
-        print("charge cancel");
         player.AdjustPlayerSpeed(1);
         EndCharge();
     }
@@ -385,7 +363,7 @@ public class PlayerAttacker : MonoBehaviour
     // Checks if there are any enemies in range
     private bool CanHitEnemy()
     {
-        return enemiesInRange.Count <= 0;
+        return targetsInRange.Count <= 0;
     }
 
     private bool CanAttack()

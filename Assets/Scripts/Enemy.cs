@@ -8,9 +8,10 @@ public class Enemy : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider cc;
     private EnemyAI ai;
-    private Animator animator;
+    public Animator Animator { get; private set; }
     public bool Alive { get;private set; }
-
+    public bool InRange { get; private set; }
+    
     private PlayerController player;
     public Transform PlayerTransform { get; private set; }
     private bool isPlayerStunned = false;
@@ -19,6 +20,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float punchCooldown = 3f; // Time between punches
     [SerializeField] private float deathDespawnDelay = 2f; // Time before the enemy is despawned after death
     [SerializeField] private float targetRange = 25f; // Distance to the player before the enemy starts tracking them
+    [SerializeField] private float inRangeRadius = 2;
 
     public enum EnemyTypes
     {
@@ -36,7 +38,7 @@ public class Enemy : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         cc = GetComponent<CapsuleCollider>();
         ai = GetComponentInChildren<EnemyAI>();
-        animator = GetComponentInChildren<Animator>();
+        Animator = GetComponentInChildren<Animator>();
 
         Alive = true;
     }
@@ -59,6 +61,10 @@ public class Enemy : MonoBehaviour
     private void FollowPlayer()
     {
         float distance = Vector3.Distance(transform.position, PlayerTransform.position);
+
+        // If the enemy is close enough and the player isnt stunned
+        InRange = (distance < inRangeRadius && player.PlayerState != PlayerController.PlayerStates.Stunned);
+        
         if (Alive && !isPlayerStunned && distance < targetRange &&  distance >= 1)
         {
             Vector3 tempPos = transform.position;
@@ -73,7 +79,7 @@ public class Enemy : MonoBehaviour
 
             // Change the enemys walk speed depending on how fast theyre going
             float currentSpeed = Mathf.Lerp(0,1,Vector3.Distance(transform.position,tempPos)*250);
-            animator.SetFloat(speed, currentSpeed);
+            Animator.SetFloat(speed, currentSpeed);
 
             ai.ResetTransform();
         }

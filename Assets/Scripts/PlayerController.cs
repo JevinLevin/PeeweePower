@@ -27,6 +27,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerSprintDelay = 0.25f;
     private float sprintCooldown;
     private float sprintProgress;
+    [Header("Stun")] 
+    [SerializeField] private float stunDuration;
+    [SerializeField] private float stunKnockbackDuration;
+    [SerializeField] private float stunDistance;
+    [SerializeField] private AnimationCurve stunCurve;
+    private float stunTime;
+    
     
     [Header("Jump")]
     [SerializeField] private float playerGravity;
@@ -64,6 +71,7 @@ public class PlayerController : MonoBehaviour
     private readonly int isWalking = Animator.StringToHash("isWalking");
     private readonly int walkSpeed = Animator.StringToHash("walkSpeed");
     private readonly int isSprinting = Animator.StringToHash("isSprinting");
+    private readonly int isStunned = Animator.StringToHash("isStunned");
 
     private void Awake()
     {
@@ -168,6 +176,10 @@ public class PlayerController : MonoBehaviour
     // Return vector based on player input
     private Vector3 GetPlayerMovement()
     {
+        // If the player is stunned, there is no movement
+        if (PlayerState == PlayerStates.Stunned)
+            return Vector3.zero;
+        
         // Grab current input direction
         Vector3 moveDirection = GetMovementDirection();
         
@@ -266,6 +278,47 @@ public class PlayerController : MonoBehaviour
         sprintCooldown = playerSprintDelay;
 
     }
+    
+    public void StartStun(Vector3 stunDirection)
+    {
+        // Dont stun again if already stunned
+        if (PlayerState == PlayerStates.Stunned)
+            return;
+
+        PlayerState = PlayerStates.Stunned;
+        
+        Animator.SetBool(isStunned, true);
+        
+        
+        StartCoroutine(Stunned(stunDirection));
+        
+        print("start stun");
+
+    }
+
+    private void StopStun()
+    {
+        PlayerState = PlayerStates.Idle;
+        Animator.SetBool(isStunned, false);
+    }
+
+    private IEnumerator Stunned(Vector3 stunDirection)
+    {
+        stunTime = 0.0f;
+        float t;
+        while ((t = stunTime / stunDuration) < 1)
+        {
+            float knockbackT = stunTime / stunKnockbackDuration;
+            float currentSpeed = Mathf.Lerp(stunDistance, 0.0f, stunCurve.Evaluate(knockbackT));
+            AddExternalVelocity(stunDirection * currentSpeed);
+            
+            stunTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        StopStun();
+    }
 
     // Allows external scripts to apply velocity to the player
     public void AddExternalVelocity(Vector3 velocity)
@@ -281,8 +334,8 @@ public class PlayerController : MonoBehaviour
     }
 
 
-
-    // If the player falls off without jumping
+    #region  JUMP_LOGIC
+// If the player falls off without jumping
     private void Fall()
     {
         onGround = false;
@@ -303,4 +356,6 @@ public class PlayerController : MonoBehaviour
         // Setting to a small negative values prevent issues with floating midair and other character controller quirks
         ySpeed = -0.5f;
     }
+    #endregion
+    
 }
