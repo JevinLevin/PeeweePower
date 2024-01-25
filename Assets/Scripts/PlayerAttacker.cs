@@ -46,6 +46,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private bool chargeCharging;
     private bool chargeReady;
     private bool chargeActive;
+    private Coroutine chargeCoroutine;
     private readonly int isAttacking = Animator.StringToHash("isAttacking");
     private readonly int comboStage = Animator.StringToHash("comboStage");
     private readonly int isCharging = Animator.StringToHash("isCharging");
@@ -69,6 +70,11 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         player = GetComponentInParent<PlayerController>();
     }
 
+    private void OnEnable()
+    {
+        GameManager.playerAttacker = this;
+    }
+
     private void Update()
     {
         // Track if the player is currently in a combo
@@ -79,7 +85,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         
         // Hit buffer
         hitBuffer -= Time.deltaTime;
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) && !chargeActive)
             hitBuffer = hitBufferMax;
         
         CheckAttack();
@@ -249,7 +255,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         
         // If the player attacks after charging
         if(Input.GetMouseButtonUp(0) && chargeReady)
-            StartCoroutine(PlayChargeAttack());
+            chargeCoroutine = StartCoroutine(PlayChargeAttack());
 
         if (Input.GetMouseButton(0) && !chargeCharging && CanAttack())
             chargeStartTimer += Time.deltaTime;
@@ -327,6 +333,13 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         chargeActive = false;
         chargeUpTime = 0.0f;
         chargeCooldown = chargeCooldownMax;
+    }
+
+    public void EndMidCharge()
+    {
+        StopCoroutine(chargeCoroutine);
+        EndCharge();
+        print("cancel charge");
     }
 
     private IEnumerator PlayChargeAttack()

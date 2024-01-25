@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     public static PlayerController playerController;
+    public static PlayerAttacker playerAttacker;
     public static TimeManager timeManager;
 
 

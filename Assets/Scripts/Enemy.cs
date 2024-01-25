@@ -16,8 +16,6 @@ public class Enemy : MonoBehaviour
     public Transform PlayerTransform { get; private set; }
     private bool isPlayerStunned = false;
 
-    [SerializeField] private float punchRange = 2f;
-    [SerializeField] private float punchCooldown = 3f; // Time between punches
     [SerializeField] private float deathDespawnDelay = 2f; // Time before the enemy is despawned after death
     [SerializeField] private float targetRange = 25f; // Distance to the player before the enemy starts tracking them
     [SerializeField] private float inRangeRadius = 2;
@@ -47,7 +45,6 @@ public class Enemy : MonoBehaviour
     { // the player tag will have to be created 
         player = GameManager.playerController;
         PlayerTransform = player.transform;
-        StartCoroutine(PunchPlayerRoutine());
     }
 
     private void Update()
@@ -83,41 +80,6 @@ public class Enemy : MonoBehaviour
 
             ai.ResetTransform();
         }
-    }
-
-    private IEnumerator PunchPlayerRoutine()
-    {
-        while (Alive)
-        {
-            // using a timer to determine when to punch, follow the player, try to land a swing 
-            float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
-            if (distanceToPlayer < punchRange)
-            {
-                //PunchPlayer();
-            }
-
-            yield return new WaitForSeconds(punchCooldown);
-        }
-    }
-
-    private void PunchPlayer()
-    {
-        // Add logic to make the player stop moving for 3 seconds
-        StartCoroutine(StopPlayerMovement(3f));
-    }
-
-    private IEnumerator StopPlayerMovement(float duration)
-    {
-        isPlayerStunned = true;
-        //  logic to stop player movement here, the player controller is going to require the custom method "SetCanMove in the Player Controller"
-        // set a flag in the player's script to prevent movement
-        player.GetComponent<PlayerController>().CanMove = false;
-
-        yield return new WaitForSeconds(duration);
-
-        // resume player movement after the specified duration
-        player.GetComponent<PlayerController>().CanMove = true;
-        isPlayerStunned = false;
     }
 
     public void Kill(Vector3 hitDirection, float hitPower, float hitHeight, int comboStage)

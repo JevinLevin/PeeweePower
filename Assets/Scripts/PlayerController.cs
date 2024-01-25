@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     private float sprintCooldown;
     private float sprintProgress;
     [Header("Stun")] 
-    [SerializeField] private float stunDuration;
+    [SerializeField] private float defaultStunDuration = 2;
     [SerializeField] private float stunKnockbackDuration;
     [SerializeField] private float stunDistance;
     [SerializeField] private AnimationCurve stunCurve;
@@ -105,19 +105,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
 
-        #region FIX_SLIDE_ROTATION
-        // Rotate model during slide animation
-        if (PlayerState == PlayerStates.Sprinting && Animator.GetCurrentAnimatorStateInfo(0).IsName("PeeweeSlide"))
-        {
-            Animator.transform.position = transform.position - Vector3.up / 1.5f;
-            Animator.transform.localEulerAngles = new Vector3(75, Animator.transform.localRotation.y, Animator.transform.localRotation.z);
-        }
-        else
-        {
-            Animator.transform.localPosition = startingModelPosition;
-            Animator.transform.rotation = transform.rotation;
-        }
-        #endregion
+
         
         MovePlayer();
         
@@ -156,6 +144,9 @@ public class PlayerController : MonoBehaviour
         if(CanMove)
             velocity = GetPlayerMovement();
 
+        // Multiple velocity based on current speed percentage
+        velocity *= playerSpeedPercentage;
+
 
         // Apply gravity
         if (!onGround)
@@ -164,8 +155,6 @@ public class PlayerController : MonoBehaviour
         velocity.y = ySpeed;
         // Apply any external velocity from other scripts
         velocity += externalVelocity;
-        // Multiple velocity based on current speed percentage
-        velocity *= playerSpeedPercentage;
 
         controller.Move(velocity * Time.deltaTime);
         
@@ -279,7 +268,7 @@ public class PlayerController : MonoBehaviour
 
     }
     
-    public void StartStun(Vector3 stunDirection)
+    public void StartStun(Vector3 stunDirection, float overwriteDuration = 0.0f)
     {
         // Dont stun again if already stunned
         if (PlayerState == PlayerStates.Stunned)
@@ -290,7 +279,7 @@ public class PlayerController : MonoBehaviour
         Animator.SetBool(isStunned, true);
         
         
-        StartCoroutine(Stunned(stunDirection));
+        StartCoroutine(Stunned(stunDirection, overwriteDuration > 0.0 ? overwriteDuration : defaultStunDuration));
         
         print("start stun");
 
@@ -302,7 +291,7 @@ public class PlayerController : MonoBehaviour
         Animator.SetBool(isStunned, false);
     }
 
-    private IEnumerator Stunned(Vector3 stunDirection)
+    private IEnumerator Stunned(Vector3 stunDirection, float stunDuration)
     {
         stunTime = 0.0f;
         float t;
