@@ -16,6 +16,7 @@ public class Granny : MonoBehaviour
     private PlayerController player;
     private Animator animator;
     private static readonly int IsStunned = Animator.StringToHash("isStunned");
+    private static readonly int StunSpeed = Animator.StringToHash("stunSpeed");
 
 
     private void Awake()
@@ -31,7 +32,7 @@ public class Granny : MonoBehaviour
         {
             this.player = player;
 
-            if(player.PlayerState == PlayerController.PlayerStates.Charging)
+            if(player.IsCharging)
             {
                 GameManager.playerAttacker.EndMidCharge();
                 
@@ -70,8 +71,10 @@ public class Granny : MonoBehaviour
             if ((t = stunTime / reboundLength) < 1)
             {
                 player.AddExternalVelocity(direction * Mathf.Lerp(reboundPower,0, reboundCurve.Evaluate(t)));
-                print(direction * reboundCurve.Evaluate(t));
             }
+
+            float stunSpeed = Mathf.Lerp(2, 0.25f, stunTime / grannyStunDuration);
+            animator.SetFloat(StunSpeed, stunSpeed);
 
             stunTime += Time.deltaTime;
 

@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public bool CanMove { get; set; }
     public bool IsSprinting { get; private set; }
     public bool IsAttacking { get; set; }
+    public bool IsCharging { get; set; }
 
     [Header("Main")]
     [SerializeField] private float playerMouseSensitivity;
@@ -273,6 +274,9 @@ public class PlayerController : MonoBehaviour
         // Dont stun again if already stunned
         if (PlayerState == PlayerStates.Stunned)
             return;
+        
+        if(PlayerState == PlayerStates.Charging)
+            GameManager.playerAttacker.CancelCharge();
 
         PlayerState = PlayerStates.Stunned;
         

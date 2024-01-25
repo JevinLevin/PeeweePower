@@ -311,7 +311,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         player.Animator.SetBool(isCharging,true);
     }
 
-    private void CancelCharge()
+    public void CancelCharge()
     {
         player.AdjustPlayerSpeed(1);
         EndCharge();
@@ -327,8 +327,10 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     {
         player.PlayerState = PlayerController.PlayerStates.Idle;
         player.Animator.SetBool(isCharging,false);
+        print("test 1");
         player.Animator.SetFloat(chargeSpeed, 1);
         chargeCharging = false;
+        player.IsCharging = false;
         chargeReady = false;
         chargeActive = false;
         chargeUpTime = 0.0f;
@@ -348,7 +350,11 @@ public class PlayerAttacker : GenericAttacker<Enemy>
 
         // Initialise
         chargeCharging = true;
+        player.IsCharging = true;
+        
+        print("test 2");
         player.AdjustPlayerSpeed(1);
+        
         Vector3 startingChargeVelocity = new Vector3(transform.forward.x,0,transform.forward.z) * chargePower;
         chargeTime = 0.0f;
         float t = 0.0f;
