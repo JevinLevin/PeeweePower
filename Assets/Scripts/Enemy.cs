@@ -116,6 +116,7 @@ public class Enemy : MonoBehaviour
         cc.isTrigger = true;
         // Allow ragdoll rotation
         rb.constraints = RigidbodyConstraints.None;
+        rb.isKinematic = false;
         ai.enabled = false;
 
         // Apply velocity to enemy based on where theyre hit from
