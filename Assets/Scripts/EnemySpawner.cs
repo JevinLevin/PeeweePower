@@ -14,6 +14,7 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("References")] 
     [SerializeField] private BoxCollider spawnArea;
+    [SerializeField] private GrannyTimer grannyTimer;
 
     [Header("Config")] 
     [SerializeField] private Vector2 spawnDelayMin = new Vector2(1.0f,0.25f);
@@ -59,6 +60,8 @@ public class EnemySpawner : MonoBehaviour
         time += Time.deltaTime;
         
         grannyTime += Time.deltaTime;
+        
+        grannyTimer.SetTimeProgress(grannyTime/grannySpawnTime);
 
         if(grannyTime >= grannySpawnTime)
             SpawnGranny();

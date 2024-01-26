@@ -12,7 +12,7 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private Image timerBar;
     [SerializeField] private float timerTweenScale = 1.05f;
     [SerializeField] private Color timerTweenColor;
-
+    
     [Header("Reward")] 
     [SerializeField] private GameObject timeRewardObject;
     [SerializeField] private Canvas timeRewardCanvas;
