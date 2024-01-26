@@ -18,6 +18,8 @@ public class Granny : MonoBehaviour
     private static readonly int IsStunned = Animator.StringToHash("isStunned");
     private static readonly int StunSpeed = Animator.StringToHash("stunSpeed");
 
+    private bool stunned;
+
 
     private void Awake()
     {
@@ -37,6 +39,9 @@ public class Granny : MonoBehaviour
         
         if (other.gameObject.TryGetComponent(out PlayerController player))
         {
+            if (stunned)
+                return;
+            
             this.player = player;
 
             if(player.IsCharging)
@@ -57,6 +62,8 @@ public class Granny : MonoBehaviour
     {
         ai.enabled = false;
         rb.isKinematic = true;
+
+        stunned = true;
 
         float stunTime = 0.0f;
         float t;
@@ -82,6 +89,7 @@ public class Granny : MonoBehaviour
         ai.enabled = true;
         rb.isKinematic = false;
         animator.SetBool(IsStunned, false);
+        stunned = false;
     }
 
     public void Freeze()

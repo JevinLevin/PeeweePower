@@ -35,8 +35,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CanvasGroup fadeCanvas;
     [SerializeField] private Highscores highscores;
 
-    public Light directionalLight;
-    public Light spotLight;
+    [HideInInspector] public Light directionalLight;
+    [HideInInspector] public Light spotLight;
 
     public static bool Active;
     private float finalTime;
@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
     private void StartGame()
     {
         Active = true;
+        print("start");
     }
 
 
@@ -97,8 +98,33 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
         FadeOut(0.5f);
+
+        yield return new WaitForSeconds(0.5f);
+        
         StartGame();
 
+    }
+
+    public IEnumerator ReturnToMenu(float delay = 0.0f)
+    {
+        yield return new WaitForSeconds(delay);
+
+        SceneManager.LoadScene("MainMenu");
+
+        FadeOut();
+    }
+
+    public IEnumerator LoadGame()
+    {
+        FadeIn();
+
+        yield return new WaitForSeconds(2);
+        
+        SceneManager.LoadScene("Main");
+        
+        FadeOut();
+        
+        StartGame();
     }
 
     private void FadeIn(float length = 2.0f)
