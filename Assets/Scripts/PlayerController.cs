@@ -11,12 +11,16 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerCamera playerCamera;
 
+    [SerializeField] private Light deathLight;
+
     public Animator Animator { get; private set; }
     public Collider cc { get; private set; }
     public bool CanMove { get; set; }
     public bool IsSprinting { get; private set; }
     public bool IsAttacking { get; set; }
     public bool IsCharging { get; set; }
+
+    private bool alive = true;
 
     [Header("Main")]
     [SerializeField] private float playerMouseSensitivity;
@@ -33,6 +37,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stunKnockbackDuration;
     [SerializeField] private float stunDistance;
     [SerializeField] private AnimationCurve stunCurve;
+    [SerializeField] private float stunGracePeriodLength = 0.5f;
+    private float stunGracePeriod;
     private float stunTime;
     
     
@@ -73,6 +79,7 @@ public class PlayerController : MonoBehaviour
     private readonly int walkSpeed = Animator.StringToHash("walkSpeed");
     private readonly int isSprinting = Animator.StringToHash("isSprinting");
     private readonly int isStunned = Animator.StringToHash("isStunned");
+    private static readonly int IsDead = Animator.StringToHash("isDead");
 
     private void Awake()
     {
@@ -95,6 +102,7 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         GameManager.playerController = this;
+        GameManager.Instance.spotLight = deathLight;
     }
 
 
@@ -106,7 +114,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
 
-
+        stunGracePeriod -= Time.deltaTime;
         
         MovePlayer();
         
@@ -118,10 +126,17 @@ public class PlayerController : MonoBehaviour
 
         // Camera movement
         float cameraX = Input.GetAxis("Mouse X") * playerMouseSensitivity * Time.deltaTime;
-        transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y+ cameraX, transform.eulerAngles.z);
+        if(alive) transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y+ cameraX, transform.eulerAngles.z);
         playerCamera.transform.rotation = Quaternion.Euler(playerCamera.transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
         
 
+    }
+
+    public void Die()
+    {
+        Animator.SetBool(IsDead, true);
+        CanMove = false;
+        alive = false;
     }
     
 
@@ -204,7 +219,7 @@ public class PlayerController : MonoBehaviour
     private float GetSprintSpeed()
     {
         // If the player is currently charging dont sprint
-        if (PlayerState == PlayerStates.Charging)
+        if (PlayerState is PlayerStates.Charging or PlayerStates.Dodging)
             return 1;
         
         float cooldown = sprintCooldown / playerSprintDelay;
@@ -293,6 +308,8 @@ public class PlayerController : MonoBehaviour
     {
         PlayerState = PlayerStates.Idle;
         Animator.SetBool(isStunned, false);
+
+        stunGracePeriod = stunGracePeriodLength;
     }
 
     private IEnumerator Stunned(Vector3 stunDirection, float stunDuration)
@@ -324,6 +341,21 @@ public class PlayerController : MonoBehaviour
     {
         playerSpeedPercentage = percentage;
         Animator.SetFloat(walkSpeed, percentage);
+    }
+
+    public bool CanBeAttacked()
+    {
+        if (PlayerState == PlayerStates.Stunned)
+            return false;
+        
+
+        if (IsCharging)
+            return false;
+
+        if (stunGracePeriod > 0)
+            return false;
+
+        return true;
     }
 
 

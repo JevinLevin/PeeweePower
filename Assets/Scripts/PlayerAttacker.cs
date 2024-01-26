@@ -327,7 +327,6 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     {
         player.PlayerState = PlayerController.PlayerStates.Idle;
         player.Animator.SetBool(isCharging,false);
-        print("test 1");
         player.Animator.SetFloat(chargeSpeed, 1);
         chargeCharging = false;
         player.IsCharging = false;
@@ -341,7 +340,6 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     {
         StopCoroutine(chargeCoroutine);
         EndCharge();
-        print("cancel charge");
     }
 
     private IEnumerator PlayChargeAttack()
@@ -352,7 +350,6 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         chargeCharging = true;
         player.IsCharging = true;
         
-        print("test 2");
         player.AdjustPlayerSpeed(1);
         
         Vector3 startingChargeVelocity = new Vector3(transform.forward.x,0,transform.forward.z) * chargePower;

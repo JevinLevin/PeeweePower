@@ -6,10 +6,12 @@ using UnityEngine;
 
 public class EnemyAttacker : GenericAttacker<PlayerController>
 {
+    private BoxCollider bc;
 
-    [SerializeField] private float attackCooldownMax = 1;
-    [SerializeField] private float attackLength = 1;
-    [Range(0,1)][SerializeField] private float attackImpactPercent = 0.5f;
+    private float attackCooldownMax = 1;
+    private float attackLength = 1;
+    private float playerStunDuration;
+    private float[] attackImpacts;
     private Enemy enemyScript;
 
     private float attackTime;
@@ -22,6 +24,16 @@ public class EnemyAttacker : GenericAttacker<PlayerController>
     private void Awake()
     {
         enemyScript = GetComponentInParent<Enemy>();
+        bc = GetComponent<BoxCollider>();
+    }
+
+    private void Start()
+    {
+        attackCooldownMax = enemyScript.Stats.attackCooldownMax;
+        attackLength = enemyScript.Stats.attackLength;
+        attackImpacts = enemyScript.Stats.attackImpacts;
+        bc.size = enemyScript.Stats.bc.size;
+        bc.center = enemyScript.Stats.bc.center;
     }
 
 
@@ -40,22 +52,30 @@ public class EnemyAttacker : GenericAttacker<PlayerController>
         attacked = true;
         
         // Hit all alive enemies in the hit range
-        foreach (PlayerController player in targetsInRange.Where(stun => stun.PlayerState != PlayerController.PlayerStates.Stunned && stun.PlayerState !=  PlayerController.PlayerStates.Dodging))
+        foreach (PlayerController player in targetsInRange.Where(stun => stun.CanBeAttacked() && stun.PlayerState != PlayerController.PlayerStates.Dodging))
+        {
             player.StartStun(transform.forward);
+            enemyScript.ChaseCooldown(playerStunDuration);
+        }
     }
 
     private IEnumerator StartAttack()
     {
         attacking = true;
         enemyScript.Animator.SetBool(IsAttacking, true);
+        int attackIndex = 0;
+        enemyScript.SetSpeed(0);
 
         attackTime = 0.0f;
         float t;
         
         while ((t = attackTime / attackLength) < 1)
         {
-            if(!attacked &&  t > attackImpactPercent)
+            if (!attacked && attackIndex < attackImpacts.Length && t > attackImpacts[attackIndex])
+            {
                 Attack();
+                attackIndex++;
+            }
 
             attackTime += Time.deltaTime;
 
@@ -70,8 +90,11 @@ public class EnemyAttacker : GenericAttacker<PlayerController>
         attacking = false;
         attacked = false;
         enemyScript.Animator.SetBool(IsAttacking, false);
+        enemyScript.SetSpeed(-1);
+
 
         attackCooldown = attackCooldownMax;
     }
+    
     
 }

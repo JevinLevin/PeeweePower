@@ -26,9 +26,16 @@ public class Granny : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void Spawn(Vector3 position)
     {
-        if (collision.gameObject.TryGetComponent(out PlayerController player))
+        transform.position = position;
+        ai.Agent.Warp(position);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        
+        if (other.gameObject.TryGetComponent(out PlayerController player))
         {
             this.player = player;
 
@@ -41,18 +48,9 @@ public class Granny : MonoBehaviour
             }
 
             player.StartStun(transform.forward, playerStunDuration);
-            StartCoroutine(ChaseCooldown());
+            StartCoroutine(ai.ChaseCooldown(playerStunDuration));
 
         }
-    }
-
-    private IEnumerator ChaseCooldown()
-    {
-        ai.enabled = false;
-
-        yield return new WaitForSeconds(playerStunDuration);
-
-        ai.enabled = true;
     }
 
     private IEnumerator GrannyStun()
@@ -84,6 +82,11 @@ public class Granny : MonoBehaviour
         ai.enabled = true;
         rb.isKinematic = false;
         animator.SetBool(IsStunned, false);
+    }
+
+    public void Freeze()
+    {
+        ai.enabled = false;
     }
 
 }

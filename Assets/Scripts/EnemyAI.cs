@@ -5,21 +5,30 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
-    private NavMeshAgent agent;
+    public NavMeshAgent Agent { get; private set; }
 
     private void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
+        Agent = GetComponent<NavMeshAgent>();
     }
 
     private void Update()
     {
-        agent.destination = GameManager.playerController.transform.position;
+        if(Agent.enabled) Agent.destination = GameManager.playerController.transform.position;
     }
 
     public void ResetTransform()
     {
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
+    }
+    
+    public IEnumerator ChaseCooldown(float duration)
+    {
+        Agent.enabled = false;
+
+        yield return new WaitForSeconds(duration);
+
+        Agent.enabled = true;
     }
 }

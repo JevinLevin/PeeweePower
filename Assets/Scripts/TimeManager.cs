@@ -13,10 +13,12 @@ public class TimeManager : MonoBehaviour
     private float maxTime;
 
     private float currentTime;
+    private float totalTime;
 
     private void Awake()
     {
         maxTime = startingTime;
+        totalTime = 0.0f;
     }
 
     private void OnEnable()
@@ -26,10 +28,22 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
+        if (!GameManager.Active)
+            return;
+        
         currentTime += Time.deltaTime;
+        totalTime += Time.deltaTime;
 
         float t = currentTime / maxTime;
+        
+        SetDisplay(t);
+        
+        if(t >= 1)
+            EndTime();
+    }
 
+    private void SetDisplay(float t)
+    {
         // Alter progress bar
         timerBar.fillAmount = 1 - t;
 
@@ -39,12 +53,16 @@ public class TimeManager : MonoBehaviour
         seconds = seconds % 60;
         string text = string.Format("{0:00}:{1:00}", minutes, seconds);
         timerText.text = "Time: " + text;
-
-
     }
 
     public void AddTime(float time)
     {
         currentTime = Mathf.Max(currentTime - time,0);
+    }
+
+    private void EndTime()
+    {
+        GameManager.Instance.FailGame(totalTime);
+        
     }
 }
