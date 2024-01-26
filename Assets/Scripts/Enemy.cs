@@ -19,6 +19,7 @@ public class Enemy : MonoBehaviour
     private bool isPlayerStunned = false;
 
     private Action<Enemy> OnKill;
+    private Func<float> GetTimeReward;
 
     [SerializeField] private GameObject[] enemyTypes;
     [SerializeField] private float deathDespawnDelay = 2f; // Time before the enemy is despawned after death
@@ -118,7 +119,7 @@ public class Enemy : MonoBehaviour
 
 
         // Add time to main timer
-        GameManager.timeManager.AddTime(timeReward);
+        GameManager.timeManager.AddTime(GetTimeReward.Invoke(), transform.position);
 
         // Despawn
         StartCoroutine(DespawnAfterDelay(deathDespawnDelay));
@@ -126,9 +127,10 @@ public class Enemy : MonoBehaviour
 
     }
 
-    public void Spawn(Vector3 position, Action<Enemy> onKill)
+    public void Spawn(Vector3 position, Action<Enemy> onKill, Func<float> getTimeReward)
     {
         OnKill = onKill;
+        GetTimeReward = getTimeReward;
         
         //Debug.Log("Random Position: " + position);
 

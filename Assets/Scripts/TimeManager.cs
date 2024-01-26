@@ -12,6 +12,11 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private Image timerBar;
     [SerializeField] private float timerTweenScale = 1.05f;
     [SerializeField] private Color timerTweenColor;
+
+    [Header("Reward")] 
+    [SerializeField] private GameObject timeRewardObject;
+    [SerializeField] private Canvas timeRewardCanvas;
+    
     private Color defaultColor;
 
     private float maxTime;
@@ -75,12 +80,16 @@ public class TimeManager : MonoBehaviour
 
     }
 
-    public void AddTime(float time)
+    public void AddTime(float time, Vector3 worldPosition)
     {
         currentTime = Mathf.Max(currentTime - time,0);
         
         colorTween.Complete();
         colorTween = timerBar.DOColor(timerTweenColor, 0.25f).OnComplete(() => timerBar.DOColor(defaultColor, 0.5f));
+
+        TimeReward tempReward = Instantiate(timeRewardObject, timeRewardCanvas.transform).GetComponent<TimeReward>();
+        tempReward.transform.position = worldPosition;
+        tempReward.Spawn(System.Math.Round(time,2).ToString());
     }
 
     private void EndTime()

@@ -16,12 +16,14 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private BoxCollider spawnArea;
 
     [Header("Config")] 
-    [SerializeField] private float spawnDelayMin = 1.0f;
-    [SerializeField] private float spawnDelayMax = 0.25f;
+    [SerializeField] private Vector2 spawnDelayMin = new Vector2(1.0f,0.25f);
+    [SerializeField] private Vector2 spawnDelayMax = new Vector2(2.0f,0.5f);
+    [SerializeField] private Vector2 timeRewardRange = new Vector2(1f,0.2f);
+    [SerializeField] private float spawnScalingLength = 180.0f;
     [SerializeField] private Vector2 spawnCount;
     [SerializeField] private int maxEnemyCount = 100;
     [SerializeField] private float minPlayerDistance = 15;
-    [SerializeField] private float maxPlayerDistance = 40;
+    [SerializeField] private float maxPlayerDistance = 50;
     [SerializeField] private float grannySpawnTime = 60.0f;
     private List<Granny> grannies = new();
     private List<Enemy> enemies = new();
@@ -33,6 +35,7 @@ public class EnemySpawner : MonoBehaviour
     private NavMeshTriangulation triangulation;
     private Mesh navMesh;
 
+    private float time;
     private float grannyTime;
 
     
@@ -53,6 +56,8 @@ public class EnemySpawner : MonoBehaviour
 
     private void Update()
     {
+        time += Time.deltaTime;
+        
         grannyTime += Time.deltaTime;
 
         if(grannyTime >= grannySpawnTime)
@@ -66,7 +71,8 @@ public class EnemySpawner : MonoBehaviour
     {
         while (true)
         {
-            float delay = Random.Range(spawnDelayMin, spawnDelayMax);
+            float t = time / spawnScalingLength;
+            float delay = Random.Range(Mathf.Lerp(spawnDelayMin.x,spawnDelayMin.y,t), Mathf.Lerp(spawnDelayMax.x,spawnDelayMax.y,t));
 
             yield return new WaitForSeconds(delay);
 
@@ -103,7 +109,7 @@ public class EnemySpawner : MonoBehaviour
         {
             // Create enemy
             Enemy newEnemy = Instantiate(enemyObject, transform).GetComponent<Enemy>();
-            newEnemy.Spawn(randomPosition, KillEnemy);
+            newEnemy.Spawn(randomPosition, KillEnemy, GetTimeReward);
             enemies.Add(newEnemy);
         }
     }
@@ -116,12 +122,14 @@ public class EnemySpawner : MonoBehaviour
     private Vector3 CalculateSpawnPosition()
     {
         Vector3 position;
+        float distance;
         do
         {
             position = GetRandomPosition();
+            distance = Vector3.Distance(position, GameManager.playerController.transform.position);
 
             // Repeatedly generate positions until its out of camera view and far enough from the player
-        } while (Vector3.Distance(position, GameManager.playerController.transform.position) < minPlayerDistance || IsVisible(position));
+        } while (distance > maxPlayerDistance || distance < minPlayerDistance || IsVisible(position));
         
         return position;
 
@@ -194,5 +202,10 @@ public class EnemySpawner : MonoBehaviour
             granny.Freeze();
 
 
+    }
+
+    private float GetTimeReward()
+    {
+        return Mathf.Lerp(timeRewardRange.x, timeRewardRange.y, time / spawnScalingLength);
     }
 }
