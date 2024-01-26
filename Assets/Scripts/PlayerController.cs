@@ -1,14 +1,15 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerCamera playerCamera;
-
     [SerializeField] private Light deathLight;
-
+    [SerializeField] private CanvasGroup redTint;
+    
     public Animator Animator { get; private set; }
     public Collider cc { get; private set; }
     public bool CanMove { get; set; }
@@ -17,6 +18,8 @@ public class PlayerController : MonoBehaviour
     public bool IsCharging { get; set; }
 
     private bool alive = true;
+
+    public Action OnStun;
 
     [Header("Main")]
     [SerializeField] private float playerMouseSensitivity;
@@ -98,12 +101,13 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         GameManager.playerController = this;
-        GameManager.Instance.spotLight = deathLight;
     }
 
 
     private void Start()
     {
+        GameManager.Instance.spotLight = deathLight;
+
         mainCamera = Camera.main;
     }
 
@@ -272,6 +276,7 @@ public class PlayerController : MonoBehaviour
 
     private void StopSprinting()
     {
+        PlayerState = PlayerStates.Idle;
         IsSprinting = false;
         Animator.SetBool(isSprinting, false);
         
@@ -293,10 +298,14 @@ public class PlayerController : MonoBehaviour
         
         Animator.SetBool(isStunned, true);
         
+        OnStun?.Invoke();
+        
         
         StartCoroutine(Stunned(stunDirection, overwriteDuration > 0.0 ? overwriteDuration : defaultStunDuration));
         
-        print("start stun");
+        // Red tint effect
+        redTint.DOFade(1.0f, 0.25f).OnComplete(() => redTint.DOFade(0.0f, 2.0f));
+
 
     }
 

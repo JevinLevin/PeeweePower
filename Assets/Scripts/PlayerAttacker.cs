@@ -25,7 +25,11 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private float attackingDuration;
     private float attackingCooldown;
 
+    [Header("Combo")]
     [SerializeField] private float comboMaxWait;
+    [SerializeField] private ComboDisplay comboDisplay;
+    private int comboReady;
+    private int totalComboStage;
     private int currentComboStage;
     private float comboTime;
 
@@ -68,6 +72,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private void Awake()
     {
         player = GetComponentInParent<PlayerController>();
+        player.OnStun += ResetCombo;
     }
 
     private void OnEnable()
@@ -78,10 +83,10 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private void Update()
     {
         // Track if the player is currently in a combo
-        comboTime -= Time.deltaTime;
+        if(player.PlayerState != PlayerController.PlayerStates.Charging) comboTime -= Time.deltaTime;
         // Reset combo if timer runs out
         if (comboTime <= 0)
-            currentComboStage = 0;
+            ResetCombo();
         
         // Hit buffer
         hitBuffer -= Time.deltaTime;
@@ -176,6 +181,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         player.Animator.SetBool(isAttacking, false);
         attacking = false;
         attackingDuration = 0.0f;
+        
+        if(!hasAttacked)
+            ResetCombo();
 
         attackingCooldown = hitCooldown;
     }
@@ -205,10 +213,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
 
         player.IsAttacking = true;
 
-        // Combo tracker
-        comboTime = comboMaxWait;
-        currentComboStage++;
-        player.Animator.SetInteger(comboStage, currentComboStage+1);
+        AddCombo();
 
 
         // Calculate hit power
@@ -216,7 +221,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         float currentHitHeight = hitHeight;
         Vector3 hitDirection = Vector3.zero;
         // Calculate hit direcdtion based on combo
-        switch (currentComboStage)
+        switch (totalComboStage % 3)
         {
             case 1:
                 hitDirection = transform.right;
@@ -224,7 +229,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
             case 2:
                 hitDirection = -transform.right;
                 break;
-            case 3:
+            case 0:
                 hitDirection = -transform.up + transform.forward / 2;
                 currentHitPower *= 1.25f;
                 currentHitHeight *= 2f;
@@ -233,11 +238,11 @@ public class PlayerAttacker : GenericAttacker<Enemy>
 
         // Hit all alive enemies in the hit range
         foreach (Enemy enemy in targetsInRange.Where(alive => alive.Alive))
-            enemy.Kill(hitDirection, currentHitPower, currentHitHeight, currentComboStage);
+            enemy.Kill(hitDirection, currentHitPower, currentHitHeight, totalComboStage);
 
         // Reset combo after max
-        if (currentComboStage >= 3)
-            currentComboStage = 0;
+        //if (currentComboStage >= 3)
+        //    currentComboStage = 0;
     }
 
     private void CheckCharge()
@@ -257,7 +262,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         if(Input.GetMouseButtonUp(0) && chargeReady)
             chargeCoroutine = StartCoroutine(PlayChargeAttack());
 
-        if (Input.GetMouseButton(0) && !chargeCharging && CanAttack())
+        if (Input.GetMouseButton(0) && CanAttack() && CanCharge())
             chargeStartTimer += Time.deltaTime;
         else
             chargeStartTimer = 0.0f;
@@ -299,7 +304,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
             randomDirection /= randomMultiplier * Random.Range(0,2) == 1 ? -1 : 1;
 
             // Kill enemies
-            enemy.Kill(transform.forward*2 + randomDirection, chargeHitPower, chargeHitHeight, currentComboStage);
+            enemy.Kill(transform.forward*2 + randomDirection, chargeHitPower, chargeHitHeight, totalComboStage);
         }
 
     }
@@ -350,6 +355,8 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         chargeCharging = true;
         player.IsCharging = true;
         
+        UseCombo();
+
         player.AdjustPlayerSpeed(1);
         
         Vector3 startingChargeVelocity = new Vector3(transform.forward.x,0,transform.forward.z) * chargePower;
@@ -375,6 +382,38 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         EndCharge();
         
     }
+
+    private void ResetCombo()
+    {
+        totalComboStage = 0;
+        currentComboStage = 0;
+        comboDisplay.LoseCombo();
+    }
+
+    private void AddCombo()
+    {
+        totalComboStage++;
+        currentComboStage++;
+        comboTime = comboMaxWait;
+        
+        // Start combo
+        if(totalComboStage == 1)
+            comboDisplay.StartCombo();
+        
+        // Ready charge
+        if(currentComboStage == 3)
+            comboDisplay.ComboReady();
+        
+        player.Animator.SetInteger(comboStage, totalComboStage%3+1);
+        
+        comboDisplay.ChangeCombo(totalComboStage);
+    }
+
+    private void UseCombo()
+    {
+        currentComboStage = 0;
+        comboDisplay.ComboUnready();
+    }
     
     // Checks if there are any enemies in range
     private bool CanHitEnemy()
@@ -393,6 +432,17 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         if (player.PlayerState == PlayerController.PlayerStates.Dodging)
             return false;
         
+        return true;
+    }
+
+    private bool CanCharge()
+    {
+        if (currentComboStage < 3)
+            return false;
+
+        if (chargeCharging)
+            return false;
+
         return true;
     }
 }
