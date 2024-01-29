@@ -25,6 +25,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float deathDespawnDelay = 2f; // Time before the enemy is despawned after death
     [SerializeField] private float targetRange = 25f; // Distance to the player before the enemy starts tracking them
     [SerializeField] private float inRangeRadius = 2;
+    [SerializeField] [Range(0, 1)] private float voicelineChance;
+
+    [SerializeField] private AudioClip[] deathSounds;
+    [SerializeField] private AudioClip[] idleSounds;
 
     public EnemyStats Stats { get; private set; }
 
@@ -62,6 +66,8 @@ public class Enemy : MonoBehaviour
         
         ai.Agent.speed = Stats.speed;
 
+        StartCoroutine(PlayVoiceLine());
+
     }
 
     private void Update()
@@ -70,6 +76,17 @@ public class Enemy : MonoBehaviour
         {
             FollowPlayer();
         }
+    }
+
+    private IEnumerator PlayVoiceLine()
+    {
+        if(Random.Range(0.0f,1.0f) < voicelineChance)
+            AudioManager.Instance.PlayAudio(idleSounds[Random.Range(0,idleSounds.Length)], transform.position);
+
+        
+        yield return new WaitForSeconds(1);
+
+        StartCoroutine(PlayVoiceLine());
     }
 
     private void FollowPlayer()
@@ -116,7 +133,7 @@ public class Enemy : MonoBehaviour
         // Apply velocity to enemy based on where theyre hit from
         rb.AddExplosionForce(hitPower, (transform.position - hitDirection), 20, hitHeight, ForceMode.Impulse);
 
-
+        AudioManager.Instance.PlayAudio(deathSounds[Random.Range(0,deathSounds.Length)], transform.position);
 
         // Add time to main timer
         GameManager.timeManager.AddTime(GetTimeReward.Invoke(), transform.position);

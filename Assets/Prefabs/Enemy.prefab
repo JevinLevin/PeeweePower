@@ -202,6 +202,18 @@ MonoBehaviour:
   deathDespawnDelay: 2
   targetRange: 500
   inRangeRadius: 2
+  voicelineChance: 0.1
+  deathSounds:
+  - {fileID: 8300000, guid: 43609d863dc9fb643aa01824717e8a91, type: 3}
+  - {fileID: 8300000, guid: e77eb96802296164999706aa0156077f, type: 3}
+  - {fileID: 8300000, guid: a52faa78ebb1ffa48930e0c78683e636, type: 3}
+  - {fileID: 8300000, guid: 1e01b351c8f606448884b875aa93a73d, type: 3}
+  - {fileID: 8300000, guid: cbdc11ca0e551e3438405f792b95d913, type: 3}
+  idleSounds:
+  - {fileID: 8300000, guid: 81d9e84f6ca7f414ba18b89a8978312f, type: 3}
+  - {fileID: 8300000, guid: a4338e7ec5f76a94b87e4d686e1123e2, type: 3}
+  - {fileID: 8300000, guid: f9258c0a6f9d2e34f9cf0b4acf53daee, type: 3}
+  - {fileID: 8300000, guid: 25fb4d9a2021af146a55b94a48e8a580, type: 3}
   enemyType: 0
   timeReward: 1
 --- !u!136 &4618710758103326397

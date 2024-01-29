@@ -3,7 +3,10 @@ guid: 448e6b7551107a84898dc924b3025499
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - timerImage: {instanceID: 0}
+  - grannyChill: {fileID: 21300000, guid: 4b1360bd897c6da4eb46cc3473d22afa, type: 3}
+  - grannyPissed: {fileID: 21300000, guid: e56df49d3ee14ec4d9fd9516767c499e, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

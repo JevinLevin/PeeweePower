@@ -11,6 +11,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
 {
     private PlayerController player;
 
+    [SerializeField] private AudioSource audioSource;
+
+    
     [Header("Attack")]
     [SerializeField] private float hitPower;
     [SerializeField] private float hitHeight;
@@ -43,6 +46,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     [SerializeField] private float chargePlayerSpeedMin = 0.25f;
     [SerializeField] private float chargeCooldownMax = 0.25f;
     [SerializeField] private float chargeStartThreshold = 0.25f;
+    [SerializeField] private CanvasGroup chargeReadyTint;
+    [SerializeField] private AudioClip peeweeChargeStart;
+    [SerializeField] private AudioClip peeweeChargeEnd;
     private float chargeStartTimer;
     private float chargeCooldown;
     private float chargeUpTime;
@@ -67,12 +73,14 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private float dodgeBuffer;
     private float dodgeDuration;
     private float dodgeCooldown;
+
     
 
     private void Awake()
     {
         player = GetComponentInParent<PlayerController>();
         player.OnStun += ResetCombo;
+        chargeReadyTint.alpha = 0.0f;
     }
 
     private void OnEnable()
@@ -293,7 +301,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         if (CanHitEnemy())
             return;
 
-        PlayerCamera.ShakeCamera();
+        PlayerCamera.ShakeCamera(2.0f);
+        
+        comboTime = comboMaxWait;
 
         // Hit all alive enemies in the hit range
         foreach (Enemy enemy in targetsInRange.Where(alive => alive.Alive))
@@ -312,18 +322,24 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private void StartCharge()
     {
         chargeActive = true;
+        audioSource.PlayOneShot(peeweeChargeStart);
         player.PlayerState = PlayerController.PlayerStates.Charging;
         player.Animator.SetBool(isCharging,true);
+        PlayerCamera.ChangeFOV(40, 2f);
     }
 
     public void CancelCharge()
     {
+        audioSource.Stop();
         player.AdjustPlayerSpeed(1);
+        chargeReadyTint.DOFade(0.0f, 1.0f);
+        PlayerCamera.ChangeFOV(-1, 0.25f);
         EndCharge();
     }
 
     private void ReadyCharge()
     {
+        chargeReadyTint.DOFade(1.0f, 0.1f);
         chargeReady = true;
         player.Animator.SetFloat(chargeSpeed, 0);
     }
@@ -355,9 +371,14 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         chargeCharging = true;
         player.IsCharging = true;
         
+        chargeReadyTint.DOFade(0.0f, 1.0f);
+        PlayerCamera.ChangeFOV(-1, 0.25f);
+
         UseCombo();
 
         player.AdjustPlayerSpeed(1);
+        
+        audioSource.PlayOneShot(peeweeChargeEnd);
         
         Vector3 startingChargeVelocity = new Vector3(transform.forward.x,0,transform.forward.z) * chargePower;
         chargeTime = 0.0f;
@@ -392,6 +413,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
 
     private void AddCombo()
     {
+        
         totalComboStage++;
         currentComboStage++;
         comboTime = comboMaxWait;
@@ -431,6 +453,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         
         if (player.PlayerState == PlayerController.PlayerStates.Dodging)
             return false;
+
+        if (attacking)
+            return false;
         
         return true;
     }
@@ -444,5 +469,10 @@ public class PlayerAttacker : GenericAttacker<Enemy>
             return false;
 
         return true;
+    }
+
+    public int GetCombo()
+    {
+        return totalComboStage;
     }
 }

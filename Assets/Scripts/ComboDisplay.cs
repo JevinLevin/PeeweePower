@@ -12,6 +12,7 @@ public class ComboDisplay : MonoBehaviour
     private Tween fadeTween;
     private Tweener shakeTween;
     TweenCallback shakeTweenComplete;
+    private Vector3 defaultPosition;
 
     [SerializeField] private Color regularColor;
     [SerializeField] private Color readyColor;
@@ -25,17 +26,20 @@ public class ComboDisplay : MonoBehaviour
         canvasGroup = GetComponent<CanvasGroup>();
 
         comboText.color = regularColor;
+
+        defaultPosition = comboText.rectTransform.localPosition;
     }
 
     public void ChangeCombo(int num)
     {
         comboText.text = "x" + num;
+        
+        shakeTween.Kill();
+        comboText.rectTransform.localPosition = defaultPosition;
 
         if (num > 3)
-        {
-            shakeTween.Complete();
             shakeTween = comboText.transform.DOShakePosition(0.1f,  GetShakeIntensity(num), 10, fadeOut: false).SetLoops(-1, LoopType.Restart).SetEase(Ease.InOutQuad);
-        }
+        
 
     }
     private float GetShakeIntensity(int num)
@@ -53,6 +57,11 @@ public class ComboDisplay : MonoBehaviour
     { 
         fadeTween.Kill();
         fadeTween = canvasGroup.DOFade(0.0f, 0.5f);
+        
+        shakeTween.Kill();
+        comboText.rectTransform.localPosition = defaultPosition;
+        
+        shakeTween.Complete();
         ComboUnready();
     }
 

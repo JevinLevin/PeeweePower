@@ -26,6 +26,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float minPlayerDistance = 15;
     [SerializeField] private float maxPlayerDistance = 50;
     [SerializeField] private float grannySpawnTime = 60.0f;
+    [SerializeField] private float grannySpawnCooldown = 5.0f;
+    [SerializeField] [Range(0,1)] private float grannyFillMaxPercentage = 0.8f;
+    private bool spawnGranny = true;
     private List<Granny> grannies = new();
     private List<Enemy> enemies = new();
     private Coroutine spawningCoroutine;
@@ -33,8 +36,6 @@ public class EnemySpawner : MonoBehaviour
     public bool Pause { get; set; }
 
     private Camera mainCamera;
-    private NavMeshTriangulation triangulation;
-    private Mesh navMesh;
 
     private float time;
     private float grannyTime;
@@ -48,22 +49,22 @@ public class EnemySpawner : MonoBehaviour
         GameManager.enemySpawner = this;
         
         mainCamera = Camera.main;
-        triangulation = NavMesh.CalculateTriangulation();
-        navMesh = new Mesh
-        {
-            vertices = triangulation.vertices
-        };
     }
 
     private void Update()
     {
+        // Dont spawn if game inactive
+        if(!GameManager.Active) return;
+        
         time += Time.deltaTime;
-        
-        grannyTime += Time.deltaTime;
-        
-        grannyTimer.SetTimeProgress(grannyTime/grannySpawnTime);
 
-        if(grannyTime >= grannySpawnTime)
+        if (spawnGranny)
+        {
+            grannyTime += Time.deltaTime;
+            grannyTimer.SetTimeProgress( Mathf.Lerp(0,grannyFillMaxPercentage,  grannyTime / grannySpawnTime));
+        }
+
+        if(spawnGranny && grannyTime >= grannySpawnTime)
             SpawnGranny();
     }
 
@@ -99,6 +100,19 @@ public class EnemySpawner : MonoBehaviour
         newGranny.Spawn(randomPosition);
         grannies.Add(newGranny);
 
+        spawnGranny = false;
+        
+        grannyTimer.SpawnGranny(grannySpawnCooldown);
+
+        StartCoroutine(GrannyCooldown());
+
+    }
+
+    private IEnumerator GrannyCooldown()
+    {
+        yield return new WaitForSeconds(grannySpawnCooldown);
+
+        spawnGranny = true;
     }
 
     /// <summary>
@@ -126,13 +140,16 @@ public class EnemySpawner : MonoBehaviour
     {
         Vector3 position;
         float distance;
+        int failsafe = 0;
         do
         {
             position = GetRandomPosition();
             distance = Vector3.Distance(position, GameManager.playerController.transform.position);
 
+            failsafe++;
+
             // Repeatedly generate positions until its out of camera view and far enough from the player
-        } while (distance > maxPlayerDistance || distance < minPlayerDistance || IsVisible(position));
+        } while (failsafe < 100 && (distance > maxPlayerDistance || distance < minPlayerDistance || IsVisible(position) || DistanceFromCentre(position) < 10));
         
         return position;
 
@@ -210,5 +227,10 @@ public class EnemySpawner : MonoBehaviour
     private float GetTimeReward()
     {
         return Mathf.Lerp(timeRewardRange.x, timeRewardRange.y, time / spawnScalingLength);
+    }
+
+    private float DistanceFromCentre(Vector3 position)
+    {
+        return Vector3.Distance(transform.position, position);
     }
 }

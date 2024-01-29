@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +10,38 @@ using Cinemachine;
 public class PlayerCamera : MonoBehaviour
 {
 
-    [SerializeField] private Transform cameraOrigin;
+    private static CinemachineVirtualCamera vcam;
     private static Transform cameraTransform;
+
+    private static Tween shakeTween;
+    private static Tweener vibrateTween;
+    private static Tween zoomTween;
+
+    private static float defaultFOV;
 
     private void Awake()
     {
-        cameraTransform = cameraOrigin;
+        cameraTransform = transform;
+
+        vcam = GetComponent<CinemachineVirtualCamera>();
+        defaultFOV = vcam.m_Lens.FieldOfView;
     }
 
     // NEED TO FIX
-    public static void ShakeCamera()
+    public static void ShakeCamera(float strength = 1.25f)
     {
-        //cameraTransform.DOShakeRotation(0.25f, 200, 10, 90, true, ShakeRandomnessMode.Harmonic);
+        shakeTween?.Complete();
+        shakeTween = cameraTransform.DOShakeRotation(0.25f, strength, 15, 90, true, ShakeRandomnessMode.Harmonic).SetRelative();
+    }
+
+    public static void ChangeFOV(float fov, float length)
+    {
+        float startingFov = vcam.m_Lens.FieldOfView;
+        
+       if (fov == -1)
+           fov = defaultFOV;
+
+       zoomTween?.Complete();
+       zoomTween = DOVirtual.Float(startingFov, fov, length, value => vcam.m_Lens.FieldOfView = value);
     }
 }

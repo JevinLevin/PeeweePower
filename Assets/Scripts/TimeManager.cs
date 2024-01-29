@@ -62,10 +62,8 @@ public class TimeManager : MonoBehaviour
 
         // Format time into a readable string
         int seconds = (int)(maxTime - currentTime);
-        int minutes = seconds / 60;
         seconds = seconds % 60;
-        string text = string.Format("{0:00}:{1:00}", minutes, seconds);
-        timerText.text = "Time: " + text;
+        timerText.text = "Time:" + seconds;
 
         if (seconds != previousSeconds)
             ScaleText();
@@ -82,14 +80,18 @@ public class TimeManager : MonoBehaviour
 
     public void AddTime(float time, Vector3 worldPosition)
     {
-        currentTime = Mathf.Max(currentTime - time,0);
+        float comboMultiplier = 1 + ((float)GameManager.playerAttacker.GetCombo()-1)/100;
+
+        float finalTime = time * comboMultiplier;
+        
+        currentTime = Mathf.Max(currentTime - finalTime,0);
         
         colorTween.Complete();
         colorTween = timerBar.DOColor(timerTweenColor, 0.25f).OnComplete(() => timerBar.DOColor(defaultColor, 0.5f));
 
         TimeReward tempReward = Instantiate(timeRewardObject, timeRewardCanvas.transform).GetComponent<TimeReward>();
         tempReward.transform.position = worldPosition;
-        tempReward.Spawn(System.Math.Round(time,2).ToString());
+        tempReward.Spawn(time,comboMultiplier);
     }
 
     private void EndTime()

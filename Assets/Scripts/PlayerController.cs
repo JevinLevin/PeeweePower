@@ -7,9 +7,12 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerCamera playerCamera;
+    [SerializeField] private Transform cameraPivot;
     [SerializeField] private Light deathLight;
     [SerializeField] private CanvasGroup redTint;
-    
+
+    [SerializeField] private AudioClip peeweeDie;
+        
     public Animator Animator { get; private set; }
     public Collider cc { get; private set; }
     public bool CanMove { get; set; }
@@ -125,9 +128,9 @@ public class PlayerController : MonoBehaviour
             Land();
 
         // Camera movement
-        float cameraX = Input.GetAxis("Mouse X") * playerMouseSensitivity * Time.deltaTime;
+        float cameraX = Input.GetAxis("Mouse X") * playerMouseSensitivity;
         if(alive) transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y+ cameraX, transform.eulerAngles.z);
-        playerCamera.transform.rotation = Quaternion.Euler(playerCamera.transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+        cameraPivot.rotation = Quaternion.Euler(cameraPivot.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
         
 
     }
@@ -135,6 +138,7 @@ public class PlayerController : MonoBehaviour
     public void Die()
     {
         Animator.SetBool(IsDead, true);
+        AudioManager.Instance.PlayAudio(peeweeDie);
         CanMove = false;
         alive = false;
     }
@@ -225,9 +229,9 @@ public class PlayerController : MonoBehaviour
         float cooldown = sprintCooldown / playerSprintDelay;
         
         // Start sprinting if the key is down and theres no cooldown
-        if (Input.GetKey(KeyCode.LeftShift) && cooldown <= 0)
+        if (!IsSprinting && Input.GetKey(KeyCode.LeftShift) && cooldown <= 0)
             StartSprinting();
-        else if(IsSprinting && sprintProgress >= 1)
+        if(IsSprinting && sprintProgress >= 1 && !Input.GetKey(KeyCode.LeftShift))
             StopSprinting();
 
         if (IsSprinting)
@@ -272,6 +276,7 @@ public class PlayerController : MonoBehaviour
         PlayerState = PlayerStates.Sprinting;
         IsSprinting = true;
         Animator.SetBool(isSprinting, true);
+        PlayerCamera.ChangeFOV(75,1);
     }
 
     private void StopSprinting()
@@ -282,6 +287,8 @@ public class PlayerController : MonoBehaviour
         
         currentSprintDuration = 0;
         sprintCooldown = playerSprintDelay;
+        
+        PlayerCamera.ChangeFOV(-1,0.25f);
 
     }
     

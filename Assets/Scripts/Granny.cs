@@ -11,6 +11,10 @@ public class Granny : MonoBehaviour
     [SerializeField] private AnimationCurve reboundCurve;
     [SerializeField] private float reboundPower = 25;
 
+    [SerializeField] private AudioClip grannyLaugh;
+    [SerializeField] private AudioClip grannyStun;
+    
+
     private EnemyAI ai;
     private Rigidbody rb;
     private PlayerController player;
@@ -47,11 +51,12 @@ public class Granny : MonoBehaviour
             if(player.IsCharging)
             {
                 GameManager.playerAttacker.EndMidCharge();
-                
+
                 StartCoroutine(GrannyStun());
                 return;
             }
 
+            AudioManager.Instance.PlayAudio(grannyLaugh,transform.position);
             player.StartStun(transform.forward, playerStunDuration);
             StartCoroutine(ai.ChaseCooldown(playerStunDuration));
 
@@ -70,6 +75,8 @@ public class Granny : MonoBehaviour
         Vector3 direction = transform.forward;
 
         animator.SetBool(IsStunned, true);
+        
+        AudioManager.Instance.PlayAudio(grannyStun,transform.position);
 
         while (stunTime < grannyStunDuration) 
         {

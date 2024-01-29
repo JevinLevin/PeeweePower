@@ -152,6 +152,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   reboundPower: 25
+  grannyLaugh: {fileID: 8300000, guid: 043dcf6ed96cae246b8983f475a6094d, type: 3}
+  grannyStun: {fileID: 8300000, guid: 2a1b0adb3a01e8149985304ed90be01d, type: 3}
 --- !u!54 &401832615462379621
 Rigidbody:
   m_ObjectHideFlags: 0
