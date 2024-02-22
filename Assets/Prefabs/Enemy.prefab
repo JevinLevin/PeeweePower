@@ -106,8 +106,8 @@ GameObject:
   - component: {fileID: 7216549573737721131}
   - component: {fileID: 4067294077628841309}
   - component: {fileID: 5783170036540462807}
-  - component: {fileID: 4618710758103326397}
   - component: {fileID: 8506214370408849182}
+  - component: {fileID: 8017521369029940298}
   m_Layer: 6
   m_Name: Enemy
   m_TagString: Enemy
@@ -198,11 +198,21 @@ MonoBehaviour:
   - {fileID: 7488324041153041091, guid: 2937619506830834f82af0364245ae32, type: 3}
   - {fileID: 7488324041153041091, guid: 2937619506830834f82af0364245ae32, type: 3}
   - {fileID: 7488324041153041091, guid: 2937619506830834f82af0364245ae32, type: 3}
+  - {fileID: 7488324041153041091, guid: 2937619506830834f82af0364245ae32, type: 3}
+  - {fileID: 7796392727291500039, guid: cf0c05a9e9da1604391da01f04290714, type: 3}
+  - {fileID: 7796392727291500039, guid: cf0c05a9e9da1604391da01f04290714, type: 3}
+  - {fileID: 7796392727291500039, guid: cf0c05a9e9da1604391da01f04290714, type: 3}
   - {fileID: 4531825619580415474, guid: 3e7ecb661c6ca1d44b5feb0a7e5989dd, type: 3}
+  - {fileID: 4531825619580415474, guid: 3e7ecb661c6ca1d44b5feb0a7e5989dd, type: 3}
+  - {fileID: 3243607452537672372, guid: 406e5ad71d585414f962abc60252b0ad, type: 3}
+  - {fileID: 3243607452537672372, guid: 406e5ad71d585414f962abc60252b0ad, type: 3}
   deathDespawnDelay: 2
   targetRange: 500
   inRangeRadius: 2
-  voicelineChance: 0.1
+  voicelineChance: 0.025
+  deathLayerMask:
+    serializedVersion: 2
+    m_Bits: 448
   deathSounds:
   - {fileID: 8300000, guid: 43609d863dc9fb643aa01824717e8a91, type: 3}
   - {fileID: 8300000, guid: e77eb96802296164999706aa0156077f, type: 3}
@@ -216,29 +226,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 25fb4d9a2021af146a55b94a48e8a580, type: 3}
   enemyType: 0
   timeReward: 1
---- !u!136 &4618710758103326397
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1853755906480015879}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 4
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &8506214370408849182
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -266,6 +253,32 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!143 &8017521369029940298
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853755906480015879}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 4
+  m_Radius: 0.5
+  m_SlopeLimit: 0
+  m_StepOffset: 0
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &4656376695150146910
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,7 +321,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 4656376695150146910}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 1
+  m_Radius: 1.25
   m_Speed: 4
   m_Acceleration: 8
   avoidancePriority: 49

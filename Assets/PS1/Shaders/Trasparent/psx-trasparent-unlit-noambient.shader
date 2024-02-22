@@ -3,6 +3,7 @@
 Shader "psx/trasparent/unlit_noambient" {
 	Properties{
 		_MainTex("Base (RGB)", 2D) = "white" {}
+		_Alpha("Alpha", float) = 1.0
 	}
 		SubShader{
 		Tags{ "Queue" = "Transparent" "RenderType" = "Transparent" }
@@ -29,6 +30,8 @@ Shader "psx/trasparent/unlit_noambient" {
 	float4 _MainTex_ST;
 	uniform half4 unity_FogStart;
 	uniform half4 unity_FogEnd;
+
+		float _Alpha;
 
 	v2f vert(appdata_full v)
 	{
@@ -83,7 +86,7 @@ Shader "psx/trasparent/unlit_noambient" {
 		half4 color = c*(IN.colorFog.a);
 		color.rgb += IN.colorFog.rgb*(1 - IN.colorFog.a);
 		color.a = c.a;
-		return color;
+		return float4(color.rgb, _Alpha);
 	}
 		ENDCG
 	}
