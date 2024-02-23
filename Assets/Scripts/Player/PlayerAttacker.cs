@@ -103,13 +103,22 @@ public class PlayerAttacker : GenericAttacker<Enemy>
     private bool inputJump;
     private bool inputSlam;
     private static readonly int IsJumping = Animator.StringToHash("isJumping");
-
+    private static readonly int IsSlamming = Animator.StringToHash("isSlamming");
+    private static readonly int jumpSpeed = Animator.StringToHash("jumpSpeed");
+    float defaultJumpSpeed;
 
     private void Awake()
     {
         player = GetComponentInParent<PlayerController>();
         player.OnStun += ResetCombo;
         chargeReadyTint.alpha = 0.0f;
+
+    }
+
+    private void Start()
+    {
+        defaultJumpSpeed = player.Animator.GetFloat(jumpSpeed);
+
     }
 
     private void OnEnable()
@@ -203,12 +212,15 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         jumpCharging = false;
         jumpCharged = true;
 
+        player.Animator.SetFloat(jumpSpeed, 0.0f);
+
     }
 
     private void EndJump()
     {
         player.PlayerState = PlayerController.PlayerStates.Idle;
         player.Animator.SetBool(IsJumping, false);
+        player.Animator.SetBool(IsSlamming, false);
 
         jumpDownCoroutine = null;
         jumpUpCoroutine = null;
@@ -233,6 +245,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         jumpCharging = false;
         jumpCharged = false;
         jumpChargeUpTime = 0.0f;
+
+        player.Animator.SetFloat(jumpSpeed, defaultJumpSpeed); 
+
 
         jumpUpCoroutine = StartCoroutine(JumpUpVelocity());
         
@@ -276,8 +291,9 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         GameManager.Instance.actionTextDisplay.StopDisplay();
         canSlam = false;
         player.Controller.excludeLayers = slamLayerMask;
+        player.Animator.SetBool(IsSlamming, true);
     }
-    
+
     private IEnumerator JumpSlamVelocity()
     {
         float jumpDownTime = 0.0f;
