@@ -9,7 +9,13 @@ public class ActionTextDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI text;
 
     private float displayTime;
-    
+
+
+    private void OnEnable()
+    {
+        GameManager.Instance.actionTextDisplay = this;
+    }
+
     public void StartDisplay(string text, float displayTime)
     {
         this.text.text = text;

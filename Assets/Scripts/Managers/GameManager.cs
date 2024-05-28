@@ -32,13 +32,13 @@ public class GameManager : MonoBehaviour
     public static TimeManager timeManager;
     public static EnemySpawner enemySpawner;
 
-    public ActionTextDisplay actionTextDisplay;
 
     [SerializeField] private CanvasGroup fadeCanvas;
     [SerializeField] private Highscores highscores;
 
     [HideInInspector] public Light directionalLight;
     [HideInInspector] public Light spotLight;
+    [HideInInspector] public ActionTextDisplay actionTextDisplay;
 
     public static bool Active;
     private float finalTime;

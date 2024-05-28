@@ -3643,11 +3643,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1331850598371810214, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 592
       objectReference: {fileID: 0}
     - target: {fileID: 1331850598371810214, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 643.19995
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1331850598371810214, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3723,11 +3723,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3164245736359566326, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 740
       objectReference: {fileID: 0}
     - target: {fileID: 3164245736359566326, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 643.19995
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3164245736359566326, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3867,11 +3867,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7371496386800061788, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 296
       objectReference: {fileID: 0}
     - target: {fileID: 7371496386800061788, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 643.19995
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7371496386800061788, guid: c634e0a5ea0ba8a44be689ebecdd3988, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -16683,7 +16683,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 298dcf6d5080b204a891adfe3b1fb2cb, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.495
   m_Pitch: 1
   Loop: 1
   Mute: 0

@@ -137,7 +137,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         
         
         // Track if the player is currently in a combo
-        if(player.PlayerState is not PlayerController.PlayerStates.Charging and PlayerController.PlayerStates.Jumping && !jumpCharging && !jumpCharged) comboTime -= Time.deltaTime;
+        if(player.PlayerState is not PlayerController.PlayerStates.Charging and not PlayerController.PlayerStates.Jumping) comboTime -= Time.deltaTime;
         // Reset combo if timer runs out
         if (comboTime <= 0)
             ResetCombo();
@@ -192,6 +192,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         player.Animator.SetBool(IsJumping, true);
         PlayerCamera.ChangeFOV(40, 1f);
         PlayerCamera.ShakeCameraIn(3,1,jumpChargeUpDuration);
+        audioSource.PlayOneShot(peeweeChargeStart);
     }
 
     public void CancelJumpCharge()
@@ -202,6 +203,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         chargeReadyTint.DOFade(0.0f, 1.0f);
         GameManager.Instance.actionTextDisplay.StopDisplay();
         PlayerCamera.ShakeCameraInStop();
+        audioSource.Stop();
         EndJump();
     }
 
@@ -260,6 +262,8 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         
         PlayerCamera.ChangeFOV(100, 0.25f);
         PlayerCamera.ShakeCameraInStop();
+        
+        audioSource.PlayOneShot(peeweeChargeEnd);
     }
 
     private IEnumerator JumpUpVelocity()
@@ -321,6 +325,7 @@ public class PlayerAttacker : GenericAttacker<Enemy>
             granny.StartStun(false); 
 
         PlayerCamera.ShakeCamera(25,10,0.5f);
+        RefreshCombo();
 
         EndJump();
 
@@ -518,6 +523,8 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         PlayerCamera.ShakeCamera(5,2,0.2f);
         
         comboTime = comboMaxWait;
+        RefreshCombo();
+
 
         // Hit all alive enemies in the hit range
         foreach (Enemy enemy in targetsInRange.Where(alive => alive.Alive))
@@ -629,12 +636,16 @@ public class PlayerAttacker : GenericAttacker<Enemy>
         comboDisplay.LoseCombo();
     }
 
+    private void RefreshCombo()
+    {
+        comboTime = comboMaxWait;
+    }
+
     private void AddCombo()
     {
-        
         totalComboStage++;
         currentComboStage++;
-        comboTime = comboMaxWait;
+        RefreshCombo();
         
         // Start combo
         if(totalComboStage == 1)
